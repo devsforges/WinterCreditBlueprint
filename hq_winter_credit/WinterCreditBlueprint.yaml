@@ -1,7 +1,7 @@
 blueprint:
-  name: Hydro-Québec Crédits Hivernaux (Custom Integration)
+  name: Hydro-Québec Crédits Hivernaux
   description: >
-    Gestion des événements de crédit hivernal d'Hydro-Québec, utilisant l'intégration personnalisée.
+    Gestion des événements de crédit hivernal d'Hydro-Québec.
   domain: automation
   input:
     peak_active:
