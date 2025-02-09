@@ -1,7 +1,7 @@
 blueprint:
-  name: Hydro-Québec Crédits Hivernaux
+  name: Hydro-Québec Crédits Hivernaux (Custom Integration)
   description: >
-    Gestion des événements de crédit hivernal d'Hydro-Québec.
+    Gestion des événements de crédit hivernal d'Hydro-Québec, utilisant l'intégration personnalisée.
   domain: automation
   input:
     peak_active:
@@ -52,13 +52,18 @@ blueprint:
       default: []
       selector:
         action: {}
-    critical_peak_end_action_AM:
-      name: Action fin pointe critique matin
+    critical_peak_end_action:
+      name: Action fin pointe critique
       default: []
       selector:
         action: {}
-    critical_peak_end_action_PM:
-      name: Action fin pointe critique soir
+    regular_peak_start_action:
+      name: (Optionnel) Action début pointe régulière
+      default: []
+      selector:
+        action: {}
+    regular_peak_end_action:
+      name: (Optionnel) Action fin pointe régulière
       default: []
       selector:
         action: {}
@@ -69,21 +74,6 @@ blueprint:
         action: {}
     critical_anchor_end_action:
       name: (Optionnel) Action fin période ancrage critique
-      default: []
-      selector:
-        action: {}
-    regular_peak_start_action:
-      name: (Optionnel) Action début pointe régulière
-      default: []
-      selector:
-        action: {}
-    regular_peak_end_action_AM:
-      name: (Optionnel) Action fin pointe régulière matin
-      default: []
-      selector:
-        action: {}
-    regular_peak_end_action_PM:
-      name: (Optionnel) Action fin pointe régulière soir
       default: []
       selector:
         action: {}
@@ -111,25 +101,10 @@ trigger:
     to: 'on'
     id: peak_start_trigger
   - platform: state
-    entity_id: !input peak_today_AM
+    entity_id: !input peak_active
     from: 'on'
     to: 'off'
-    id: peak_end_trigger_AM
-  - platform: state
-    entity_id: !input peak_today_PM
-    from: 'on'
-    to: 'off'
-    id: peak_end_trigger_PM
-  - platform: state
-    entity_id: !input peak_tomorrow_AM
-    from: 'on'
-    to: 'off'
-    id: peak_end_trigger_AM
-  - platform: state
-    entity_id: !input peak_tomorrow_PM
-    from: 'on'
-    to: 'off'
-    id: peak_end_trigger_PM
+    id: peak_end_trigger
   - platform: state
     entity_id: !input peak_today_AM
     from: 'off'
@@ -185,34 +160,19 @@ action:
                 sequence: !input regular_peak_start_action
       - conditions:
           - condition: trigger
-            id: peak_end_trigger_AM
+            id: peak_end_trigger
         sequence:
           - choose:
               - conditions:
                   - condition: state
                     entity_id: !input peak_active
                     state: 'on'
-                sequence: !input critical_peak_end_action_AM
+                sequence: !input critical_peak_end_action
               - conditions:
                   - condition: state
                     entity_id: !input peak_active
                     state: 'off'
-                sequence: !input regular_peak_end_action_AM
-      - conditions:
-          - condition: trigger
-            id: peak_end_trigger_PM
-        sequence:
-          - choose:
-              - conditions:
-                  - condition: state
-                    entity_id: !input peak_active
-                    state: 'on'
-                sequence: !input critical_peak_end_action_PM
-              - conditions:
-                  - condition: state
-                    entity_id: !input peak_active
-                    state: 'off'
-                sequence: !input regular_peak_end_action_PM
+                sequence: !input regular_peak_end_action
       - conditions:
           - condition: trigger
             id: anchor_start_trigger
