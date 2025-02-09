@@ -129,7 +129,7 @@ blueprint:
       default: []
       selector:
         action: {}
-  source_url: https://raw.githubusercontent.com/hydroqc/hass-blueprint-hydroqc/main/hydroqc-winter-credits.yaml
+  source_url: https://raw.githubusercontent.com/devsforges/WinterCreditBlueprint/refs/heads/main/WinterCreditBlueprint.yaml
 mode: parallel
 trigger:
 - platform: time
