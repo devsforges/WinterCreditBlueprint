@@ -1,35 +1,7 @@
 blueprint:
-  name: Hydro-Quebec Winter Credit
-  description: '# Gestion des événements de crédit hivernal d''Hydro-Québec.
-
-
-    Ce blueprint offre les bases pour faire la gestion des événements de pointes critiques
-    dans le cadre du programme de [crédit hivernal d''Hydro-Québec](https://www.hydroquebec.com/residentiel/espace-clients/tarifs/option-credit-hivernal.html).
-    Il a été créé pour fonctionner avec le projet [Hydroqc](https://hydroqc.ca) qui
-    extrait les données de votre compte à partir du portail client d''Hydro-Québec.
-
-
-    ## Configuration
-
-
-    ### Entités de temps et de criticité de la période.
-
-    Les valeurs des premières configurations seront autoremplies si le nom de votre
-    contrat dans votre configuration hydroqc est "maison". Autrement vous devrez sélectionner
-    les entités correspondantes.
-
-
-    ### Actions
-
-
-    Définition des actions à effectuer dans Home-Assistant lors de chaque début et
-    fin de périodes.
-
-
-    Vous trouverez plus de détail sur les logiques applicables pour les crédits hivernaux
-    dans notre [documentation](https://hydroqc.ca/fr/docs/winter-credits/).
-
-    '
+  name: Hydro-Québec Crédits Hivernaux
+  description: >
+    Gestion des événements de crédit hivernal d'Hydro-Québec.
   domain: automation
   input:
     peak_active:
@@ -80,8 +52,13 @@ blueprint:
       default: []
       selector:
         action: {}
-    critical_peak_end_action:
-      name: Action fin pointe critique
+    critical_peak_end_action_AM:
+      name: Action fin pointe critique matin
+      default: []
+      selector:
+        action: {}
+    critical_peak_end_action_PM:
+      name: Action fin pointe critique soir
       default: []
       selector:
         action: {}
@@ -100,8 +77,13 @@ blueprint:
       default: []
       selector:
         action: {}
-    regular_peak_end_action:
-      name: (Optionnel) Action fin pointe régulière
+    regular_peak_end_action_AM:
+      name: (Optionnel) Action fin pointe régulière matin
+      default: []
+      selector:
+        action: {}
+    regular_peak_end_action_PM:
+      name: (Optionnel) Action fin pointe régulière soir
       default: []
       selector:
         action: {}
@@ -129,10 +111,25 @@ trigger:
     to: 'on'
     id: peak_start_trigger
   - platform: state
-    entity_id: !input peak_active
+    entity_id: !input peak_today_AM
     from: 'on'
     to: 'off'
-    id: peak_end_trigger
+    id: peak_end_trigger_AM
+  - platform: state
+    entity_id: !input peak_today_PM
+    from: 'on'
+    to: 'off'
+    id: peak_end_trigger_PM
+  - platform: state
+    entity_id: !input peak_tomorrow_AM
+    from: 'on'
+    to: 'off'
+    id: peak_end_trigger_AM
+  - platform: state
+    entity_id: !input peak_tomorrow_PM
+    from: 'on'
+    to: 'off'
+    id: peak_end_trigger_PM
   - platform: state
     entity_id: !input peak_today_AM
     from: 'off'
@@ -188,19 +185,34 @@ action:
                 sequence: !input regular_peak_start_action
       - conditions:
           - condition: trigger
-            id: peak_end_trigger
+            id: peak_end_trigger_AM
         sequence:
           - choose:
               - conditions:
                   - condition: state
                     entity_id: !input peak_active
                     state: 'on'
-                sequence: !input critical_peak_end_action
+                sequence: !input critical_peak_end_action_AM
               - conditions:
                   - condition: state
                     entity_id: !input peak_active
                     state: 'off'
-                sequence: !input regular_peak_end_action
+                sequence: !input regular_peak_end_action_AM
+      - conditions:
+          - condition: trigger
+            id: peak_end_trigger_PM
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: !input peak_active
+                    state: 'on'
+                sequence: !input critical_peak_end_action_PM
+              - conditions:
+                  - condition: state
+                    entity_id: !input peak_active
+                    state: 'off'
+                sequence: !input regular_peak_end_action_PM
       - conditions:
           - condition: trigger
             id: anchor_start_trigger
@@ -231,6 +243,3 @@ action:
                     entity_id: !input peak_active
                     state: 'off'
                 sequence: !input regular_anchor_end_action
-          - condition: trigger
-            id: peak_end_trigger_PM
-        sequence: !input critical_peak_end_action_PM
