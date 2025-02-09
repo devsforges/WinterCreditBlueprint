@@ -32,103 +32,205 @@ blueprint:
     '
   domain: automation
   input:
-    peak_active_AM:
-      name: Capteur binaire - Pointe du matin
-      description: Capteur indiquant si une pointe critique du matin est en cours.
-      default: binary_sensor.peak_today_AM
-      selector:
-        entity:
-          domain: binary_sensor
-    peak_active_PM:
-      name: Capteur binaire - Pointe du soir
-      description: Capteur indiquant si une pointe critique du soir est en cours.
-      default: binary_sensor.peak_today_PM
+    peak_active:
+      name: Pointe en cours (critique)
+      description: Indicateur de pointe critique active
+      default: binary_sensor.peak_active
       selector:
         entity:
           domain: binary_sensor
     preheat_active:
-      name: Capteur binaire - Pré-chauffage en cours
-      description: Capteur indiquant si le préchauffage est en cours.
+      name: Pré-chauffage en cours
+      description: Indicateur de préchauffage actif
       default: binary_sensor.preheat_active
+      selector:
+        entity:
+          domain: binary_sensor
+    peak_today_AM:
+      name: Pointe Matin Aujourd'hui
+      default: binary_sensor.peak_today_AM
+      selector:
+        entity:
+          domain: binary_sensor
+    peak_tomorrow_AM:
+      name: Pointe Matin Demain
+      default: binary_sensor.peak_tomorrow_AM
+      selector:
+        entity:
+          domain: binary_sensor
+    peak_today_PM:
+      name: Pointe Soir Aujourd'hui
+      default: binary_sensor.peak_today_PM
+      selector:
+        entity:
+          domain: binary_sensor
+    peak_tomorrow_PM:
+      name: Pointe Soir Demain
+      default: binary_sensor.peak_tomorrow_PM
       selector:
         entity:
           domain: binary_sensor
     pre_heat_start_action:
       name: Action de préchauffage
-      description: Actions à effectuer avant la période de pointe critique.
       default: []
       selector:
         action: {}
-    critical_peak_start_action_AM:
-      name: Action début pointe critique (Matin)
-      description: Actions à effectuer au début de la période de pointe critique du matin.
+    critical_peak_start_action:
+      name: Action début pointe critique
       default: []
       selector:
         action: {}
-    critical_peak_start_action_PM:
-      name: Action début pointe critique (Soir)
-      description: Actions à effectuer au début de la période de pointe critique du soir.
+    critical_peak_end_action:
+      name: Action fin pointe critique
       default: []
       selector:
         action: {}
-    critical_peak_end_action_AM:
-      name: Action fin pointe critique (Matin)
-      description: Actions à effectuer à la fin de la période de pointe critique du matin.
+    critical_anchor_start_action:
+      name: (Optionnel) Action début période ancrage critique
       default: []
       selector:
         action: {}
-    critical_peak_end_action_PM:
-      name: Action fin pointe critique (Soir)
-      description: Actions à effectuer à la fin de la période de pointe critique du soir.
+    critical_anchor_end_action:
+      name: (Optionnel) Action fin période ancrage critique
       default: []
       selector:
         action: {}
+    regular_peak_start_action:
+      name: (Optionnel) Action début pointe régulière
+      default: []
+      selector:
+        action: {}
+    regular_peak_end_action:
+      name: (Optionnel) Action fin pointe régulière
+      default: []
+      selector:
+        action: {}
+    regular_anchor_start_action:
+      name: (Optionnel) Action début période ancrage régulière
+      default: []
+      selector:
+        action: {}
+    regular_anchor_end_action:
+      name: (Optionnel) Action fin période ancrage régulière
+      default: []
+      selector:
+        action: {}
+
 mode: parallel
 trigger:
   - platform: state
     entity_id: !input preheat_active
     from: 'off'
     to: 'on'
-    id: preheat_start_trigger
+    id: preheat_trigger
   - platform: state
-    entity_id: !input peak_active_AM
+    entity_id: !input peak_active
     from: 'off'
     to: 'on'
-    id: peak_start_trigger_AM
+    id: peak_start_trigger
   - platform: state
-    entity_id: !input peak_active_PM
+    entity_id: !input peak_active
+    from: 'on'
+    to: 'off'
+    id: peak_end_trigger
+  - platform: state
+    entity_id: !input peak_today_AM
     from: 'off'
     to: 'on'
-    id: peak_start_trigger_PM
+    id: anchor_start_trigger
   - platform: state
-    entity_id: !input peak_active_AM
+    entity_id: !input peak_today_PM
+    from: 'off'
+    to: 'on'
+    id: anchor_start_trigger
+  - platform: state
+    entity_id: !input peak_tomorrow_AM
+    from: 'off'
+    to: 'on'
+    id: anchor_start_trigger
+  - platform: state
+    entity_id: !input peak_tomorrow_PM
+    from: 'off'
+    to: 'on'
+    id: anchor_start_trigger
+  - platform: state
+    entity_id: !input preheat_active
     from: 'on'
     to: 'off'
-    id: peak_end_trigger_AM
-  - platform: state
-    entity_id: !input peak_active_PM
-    from: 'on'
-    to: 'off'
-    id: peak_end_trigger_PM
+    id: anchor_end_trigger
+
 action:
   - choose:
       - conditions:
           - condition: trigger
-            id: preheat_start_trigger
-        sequence: !input pre_heat_start_action
+            id: preheat_trigger
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: !input peak_active
+                    state: 'on'
+                sequence: !input pre_heat_start_action
       - conditions:
           - condition: trigger
-            id: peak_start_trigger_AM
-        sequence: !input critical_peak_start_action_AM
+            id: peak_start_trigger
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: !input peak_active
+                    state: 'on'
+                sequence: !input critical_peak_start_action
+              - conditions:
+                  - condition: state
+                    entity_id: !input peak_active
+                    state: 'off'
+                sequence: !input regular_peak_start_action
       - conditions:
           - condition: trigger
-            id: peak_start_trigger_PM
-        sequence: !input critical_peak_start_action_PM
+            id: peak_end_trigger
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: !input peak_active
+                    state: 'on'
+                sequence: !input critical_peak_end_action
+              - conditions:
+                  - condition: state
+                    entity_id: !input peak_active
+                    state: 'off'
+                sequence: !input regular_peak_end_action
       - conditions:
           - condition: trigger
-            id: peak_end_trigger_AM
-        sequence: !input critical_peak_end_action_AM
+            id: anchor_start_trigger
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: !input peak_active
+                    state: 'on'
+                sequence: !input critical_anchor_start_action
+              - conditions:
+                  - condition: state
+                    entity_id: !input peak_active
+                    state: 'off'
+                sequence: !input regular_anchor_start_action
       - conditions:
+          - condition: trigger
+            id: anchor_end_trigger
+        sequence:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: !input peak_active
+                    state: 'on'
+                sequence: !input critical_anchor_end_action
+              - conditions:
+                  - condition: state
+                    entity_id: !input peak_active
+                    state: 'off'
+                sequence: !input regular_anchor_end_action
           - condition: trigger
             id: peak_end_trigger_PM
         sequence: !input critical_peak_end_action_PM
