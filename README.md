@@ -1,6 +1,6 @@
 # Home-assistant blueprint for Hydro-Québec Winter Credits
 
-**The work on this blueprint and the hydroqc components happens on [Github](https://github.com/Beat-YT/hydropeak-ha). Please open issues or merge request there.**
+**The work on this blueprint and the [hydropeak](https://github.com/Beat-YT/hydropeak-ha) integration.**
 
 ## Donations
 
