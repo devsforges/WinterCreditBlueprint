@@ -35,18 +35,21 @@ blueprint:
     peak_active_AM:
       name: Capteur binaire - Pointe du matin
       description: Capteur indiquant si une pointe critique du matin est en cours.
+      default: binary_sensor.peak_today_AM
       selector:
         entity:
           domain: binary_sensor
     peak_active_PM:
       name: Capteur binaire - Pointe du soir
       description: Capteur indiquant si une pointe critique du soir est en cours.
+      default: binary_sensor.peak_today_PM
       selector:
         entity:
           domain: binary_sensor
     preheat_active:
       name: Capteur binaire - Pré-chauffage en cours
       description: Capteur indiquant si le préchauffage est en cours.
+      default: binary_sensor.preheat_active
       selector:
         entity:
           domain: binary_sensor
