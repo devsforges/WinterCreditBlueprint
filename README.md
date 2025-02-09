@@ -10,7 +10,7 @@ We put a lot of hearth and effort in this project, any contribution is greatly a
 
 Manual installation of blueprints is only supported from github or the Home assistant forums. You can manually import using the following github repo: 
 
-[HydroPeak](https://github.com/Beat-YT/hydropeak-ha)
+https://github.com/devsforges/WinterCreditBlueprint
 
 or the magic buttons:
 
