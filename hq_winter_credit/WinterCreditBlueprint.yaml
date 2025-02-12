@@ -1,6 +1,6 @@
 blueprint:
   name: Hydro-Québec Crédits Hivernaux
-  description: "Gestion des événements de crédit hivernal d'Hydro-Québec."
+  description: 'Gestion des événements de crédit hivernal Hydro-Québec. '
   domain: automation
   input:
     peak_active:
