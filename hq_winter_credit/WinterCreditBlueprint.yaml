@@ -39,7 +39,7 @@ blueprint:
           multiple: false
     peak_today_PM:
       name: Pointe Soir Aujourd'hui
-      default: bbinary_sensor.hydropeak_cpc_d_peak_today_pm
+      default: binary_sensor.hydropeak_cpc_d_peak_today_pm
       selector:
         entity:
           domain:
