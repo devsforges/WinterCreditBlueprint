@@ -153,45 +153,45 @@ trigger:
 action:
 - choose:
   - conditions:
-    - conditions:
-      - condition: trigger
-        id: pre_heat_trigger
-      sequence:
-        - choose:
-            - conditions:
-                - condition: state
-                  entity_id: !input critical_am
-                  state: 'on'
-              sequence: !input pre_heat_start_action
-            - conditions:
-                - condition: state
-                  entity_id: !input critical_pm
-                  state: 'on'
-              sequence: !input pre_heat_start_action
-    - conditions:
-      - condition: trigger
-        id: peak_start_trigger
-      sequence:
-        - choose:
-            - conditions:
-                - condition: state
-                  entity_id: !input critical_am
-                  state: 'on'
-              sequence: !input critical_peak_start_action
-            - conditions:
-                - condition: state
-                  entity_id: !input critical_pm
-                  state: 'on'
-              sequence: !input critical_peak_start_action
-        - choose:
-            - conditions:
-                - condition: state
-                  entity_id: !input critical_am
-                  state: 'off'
-                - condition: state
-                  entity_id: !input critical_pm
-                  state: 'off'
-              sequence: !input regular_peak_start_action
+    - condition: trigger
+      id: pre_heat_trigger
+    sequence:
+    - choose:
+      - conditions:
+        - condition: state
+          entity_id: !input critical_am
+          state: 'on'
+        sequence: !input pre_heat_start_action
+      - conditions:
+        - condition: state
+          entity_id: !input critical_pm
+          state: 'on'
+        sequence: !input pre_heat_start_action
+
+  - conditions:
+    - condition: trigger
+      id: peak_start_trigger
+    sequence:
+    - choose:
+      - conditions:
+        - condition: state
+          entity_id: !input critical_am
+          state: 'on'
+        sequence: !input critical_peak_start_action
+      - conditions:
+        - condition: state
+          entity_id: !input critical_pm
+          state: 'on'
+        sequence: !input critical_peak_start_action
+      - conditions:
+        - condition: state
+          entity_id: !input critical_am
+          state: 'off'
+        - condition: state
+          entity_id: !input critical_pm
+          state: 'off'
+        sequence: !input regular_peak_start_action
+
   - conditions:
     - condition: trigger
       id: peak_end_trigger
@@ -199,14 +199,23 @@ action:
     - choose:
       - conditions:
         - condition: state
-          entity_id: !input critical
+          entity_id: !input critical_am
           state: 'on'
         sequence: !input critical_peak_end_action
       - conditions:
         - condition: state
-          entity_id: !input critical
+          entity_id: !input critical_pm
+          state: 'on'
+        sequence: !input critical_peak_end_action
+      - conditions:
+        - condition: state
+          entity_id: !input critical_am
+          state: 'off'
+        - condition: state
+          entity_id: !input critical_pm
           state: 'off'
         sequence: !input regular_peak_end_action
+
   - conditions:
     - condition: trigger
       id: anchor_start_trigger
@@ -214,14 +223,23 @@ action:
     - choose:
       - conditions:
         - condition: state
-          entity_id: !input critical
+          entity_id: !input critical_am
           state: 'on'
         sequence: !input critical_anchor_start_action
       - conditions:
         - condition: state
-          entity_id: !input critical
+          entity_id: !input critical_pm
+          state: 'on'
+        sequence: !input critical_anchor_start_action
+      - conditions:
+        - condition: state
+          entity_id: !input critical_am
+          state: 'off'
+        - condition: state
+          entity_id: !input critical_pm
           state: 'off'
         sequence: !input regular_anchor_start_action
+
   - conditions:
     - condition: trigger
       id: anchor_end_trigger
@@ -229,11 +247,19 @@ action:
     - choose:
       - conditions:
         - condition: state
-          entity_id: !input critical
+          entity_id: !input critical_am
           state: 'on'
         sequence: !input critical_anchor_end_action
       - conditions:
         - condition: state
-          entity_id: !input critical
+          entity_id: !input critical_pm
+          state: 'on'
+        sequence: !input critical_anchor_end_action
+      - conditions:
+        - condition: state
+          entity_id: !input critical_am
+          state: 'off'
+        - condition: state
+          entity_id: !input critical_pm
           state: 'off'
         sequence: !input regular_anchor_end_action
