@@ -85,6 +85,51 @@ blueprint:
           domain:
           - sensor
           multiple: false
+    pre_heat_start_action:
+      name: Action de préchauffage
+      default: []
+      selector:
+        action: {}
+    critical_peak_start_action:
+      name: Action début pointe critique
+      default: []
+      selector:
+        action: {}
+    critical_peak_end_action:
+      name: Action fin pointe critique
+      default: []
+      selector:
+        action: {}
+    regular_peak_start_action:
+      name: (Optionnel) Action début pointe régulière
+      default: []
+      selector:
+        action: {}
+    regular_peak_end_action:
+      name: (Optionnel) Action fin pointe régulière
+      default: []
+      selector:
+        action: {}
+    critical_anchor_start_action:
+      name: (Optionnel) Action début période ancrage critique
+      default: []
+      selector:
+        action: {}
+    critical_anchor_end_action:
+      name: (Optionnel) Action fin période ancrage critique
+      default: []
+      selector:
+        action: {}
+    regular_anchor_start_action:
+      name: (Optionnel) Action début période ancrage régulière
+      default: []
+      selector:
+        action: {}
+    regular_anchor_end_action:
+      name: (Optionnel) Action fin période ancrage régulière
+      default: []
+      selector:
+        action: {}
   source_url: https://raw.githubusercontent.com/devsforges/WinterCreditBlueprint/main/hq_winter_credit/WinterCreditBlueprint.yaml
 mode: parallel
 trigger:
@@ -140,92 +185,3 @@ trigger:
 - platform: state
   entity_id: !input next_event_end
   id: next_event_end_trigger
-
-action:
-- choose:
-  - conditions:
-    - condition: trigger
-      id: preheat_trigger
-    sequence:
-    - choose:
-      - conditions:
-        - condition: state
-          entity_id: !input peak_active
-          state: 'on'
-        sequence: !input pre_heat_start_action
-  - conditions:
-    - condition: trigger
-      id: peak_start_trigger
-    sequence:
-    - choose:
-      - conditions:
-        - condition: state
-          entity_id: !input peak_active
-          state: 'on'
-        sequence: !input critical_peak_start_action
-      - conditions:
-        - condition: state
-          entity_id: !input peak_active
-          state: 'off'
-        sequence: !input regular_peak_start_action
-  - conditions:
-    - condition: trigger
-      id: peak_end_trigger
-    sequence:
-    - choose:
-      - conditions:
-        - condition: state
-          entity_id: !input peak_active
-          state: 'on'
-        sequence: !input critical_peak_end_action
-      - conditions:
-        - condition: state
-          entity_id: !input peak_active
-          state: 'off'
-        sequence: !input regular_peak_end_action
-  - conditions:
-    - condition: trigger
-      id: anchor_start_trigger
-    sequence:
-    - choose:
-      - conditions:
-        - condition: state
-          entity_id: !input peak_active
-          state: 'on'
-        sequence: !input critical_anchor_start_action
-      - conditions:
-        - condition: state
-          entity_id: !input peak_active
-          state: 'off'
-        sequence: !input regular_anchor_start_action
-  - conditions:
-    - condition: trigger
-      id: anchor_end_trigger
-    sequence:
-    - choose:
-      - conditions:
-        - condition: state
-          entity_id: !input peak_active
-          state: 'on'
-        sequence: !input critical_anchor_end_action
-      - conditions:
-        - condition: state
-          entity_id: !input peak_active
-          state: 'off'
-        sequence: !input regular_anchor_end_action
-  - conditions:
-    - condition: trigger
-      id: next_anchor_start_trigger
-    sequence: []
-  - conditions:
-    - condition: trigger
-      id: next_anchor_end_trigger
-    sequence: []
-  - conditions:
-    - condition: trigger
-      id: next_event_start_trigger
-    sequence: []
-  - conditions:
-    - condition: trigger
-      id: next_event_end_trigger
-    sequence: []
