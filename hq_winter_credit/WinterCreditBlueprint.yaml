@@ -1,47 +1,58 @@
 blueprint:
   name: Hydro-Québec Crédits Hivernaux
-  description: >
-    Gestion des événements de crédit hivernal d'Hydro-Québec.
+  description: 'Gestion des événements de crédit hivernal d'Hydro-Québec. '
   domain: automation
   input:
     peak_active:
       name: Pointe en cours (critique)
       description: Indicateur de pointe critique active
-      default: binary_sensor.peak_active
+      default: binary_sensor.hydropeak_cpc_d_peak_active
       selector:
         entity:
-          domain: binary_sensor
+          domain:
+          - binary_sensor
+          multiple: false
     preheat_active:
       name: Pré-chauffage en cours
       description: Indicateur de préchauffage actif
-      default: binary_sensor.preheat_active
+      default: binary_sensor.hydropeak_cpc_d_preheat_active
       selector:
         entity:
-          domain: binary_sensor
+          domain:
+          - binary_sensor
+          multiple: false
     peak_today_AM:
       name: Pointe Matin Aujourd'hui
-      default: binary_sensor.peak_today_AM
+      default: binary_sensor.hydropeak_cpc_d_peak_today_am
       selector:
         entity:
-          domain: binary_sensor
+          domain:
+          - binary_sensor
+          multiple: false
     peak_tomorrow_AM:
       name: Pointe Matin Demain
-      default: binary_sensor.peak_tomorrow_AM
+      default: binary_sensor.hydropeak_cpc_d_peak_tomorrow_am
       selector:
         entity:
-          domain: binary_sensor
+          domain:
+            - binary_sensor
+          multiple: false
     peak_today_PM:
       name: Pointe Soir Aujourd'hui
-      default: binary_sensor.peak_today_PM
+      default: bbinary_sensor.hydropeak_cpc_d_peak_today_pm
       selector:
         entity:
-          domain: binary_sensor
+          domain:
+          - binary_sensor
+          multiple: false
     peak_tomorrow_PM:
       name: Pointe Soir Demain
-      default: binary_sensor.peak_tomorrow_PM
+      default: binary_sensor.hydropeak_cpc_d_peak_tomorrow_pm
       selector:
         entity:
-          domain: binary_sensor
+          domain:
+          - binary_sensor
+          multiple: false
     pre_heat_start_action:
       name: Action de préchauffage
       default: []
@@ -87,119 +98,118 @@ blueprint:
       default: []
       selector:
         action: {}
-
+  source_url: https://raw.githubusercontent.com/devsforges/WinterCreditBlueprint/main/hq_winter_credit/WinterCreditBlueprint.yaml
 mode: parallel
 trigger:
-  - platform: state
-    entity_id: !input preheat_active
-    from: 'off'
-    to: 'on'
-    id: preheat_trigger
-  - platform: state
-    entity_id: !input peak_active
-    from: 'off'
-    to: 'on'
-    id: peak_start_trigger
-  - platform: state
-    entity_id: !input peak_active
-    from: 'on'
-    to: 'off'
-    id: peak_end_trigger
-  - platform: state
-    entity_id: !input peak_today_AM
-    from: 'off'
-    to: 'on'
-    id: anchor_start_trigger
-  - platform: state
-    entity_id: !input peak_today_PM
-    from: 'off'
-    to: 'on'
-    id: anchor_start_trigger
-  - platform: state
-    entity_id: !input peak_tomorrow_AM
-    from: 'off'
-    to: 'on'
-    id: anchor_start_trigger
-  - platform: state
-    entity_id: !input peak_tomorrow_PM
-    from: 'off'
-    to: 'on'
-    id: anchor_start_trigger
-  - platform: state
-    entity_id: !input preheat_active
-    from: 'on'
-    to: 'off'
-    id: anchor_end_trigger
-
+- platform: state
+  entity_id: !input preheat_active
+  from: 'off'
+  to: 'on'
+  id: preheat_trigger
+- platform: state
+  entity_id: !input peak_active
+  from: 'off'
+  to: 'on'
+  id: peak_start_trigger
+- platform: state
+  entity_id: !input peak_active
+  from: 'on'
+  to: 'off'
+  id: peak_end_trigger
+- platform: state
+  entity_id: !input peak_today_AM
+  from: 'off'
+  to: 'on'
+  id: anchor_start_trigger
+- platform: state
+  entity_id: !input peak_today_PM
+  from: 'off'
+  to: 'on'
+  id: anchor_start_trigger
+- platform: state
+  entity_id: !input peak_tomorrow_AM
+  from: 'off'
+  to: 'on'
+  id: anchor_start_trigger
+- platform: state
+  entity_id: !input peak_tomorrow_PM
+  from: 'off'
+  to: 'on'
+  id: anchor_start_trigger
+- platform: state
+  entity_id: !input preheat_active
+  from: 'on'
+  to: 'off'
+  id: anchor_end_trigger
 action:
-  - choose:
+- choose:
+  - conditions:
+    - condition: trigger
+      id: preheat_trigger
+    sequence:
+    - choose:
       - conditions:
-          - condition: trigger
-            id: preheat_trigger
-        sequence:
-          - choose:
-              - conditions:
-                  - condition: state
-                    entity_id: !input peak_active
-                    state: 'on'
-                sequence: !input pre_heat_start_action
+        - condition: state
+          entity_id: !input peak_active
+          state: 'on'
+        sequence: !input pre_heat_start_action
+  - conditions:
+    - condition: trigger
+      id: peak_start_trigger
+    sequence:
+    - choose:
       - conditions:
-          - condition: trigger
-            id: peak_start_trigger
-        sequence:
-          - choose:
-              - conditions:
-                  - condition: state
-                    entity_id: !input peak_active
-                    state: 'on'
-                sequence: !input critical_peak_start_action
-              - conditions:
-                  - condition: state
-                    entity_id: !input peak_active
-                    state: 'off'
-                sequence: !input regular_peak_start_action
+        - condition: state
+          entity_id: !input peak_active
+          state: 'on'
+        sequence: !input critical_peak_start_action
       - conditions:
-          - condition: trigger
-            id: peak_end_trigger
-        sequence:
-          - choose:
-              - conditions:
-                  - condition: state
-                    entity_id: !input peak_active
-                    state: 'on'
-                sequence: !input critical_peak_end_action
-              - conditions:
-                  - condition: state
-                    entity_id: !input peak_active
-                    state: 'off'
-                sequence: !input regular_peak_end_action
+        - condition: state
+          entity_id: !input peak_active
+          state: 'off'
+        sequence: !input regular_peak_start_action
+  - conditions:
+    - condition: trigger
+      id: peak_end_trigger
+    sequence:
+    - choose:
       - conditions:
-          - condition: trigger
-            id: anchor_start_trigger
-        sequence:
-          - choose:
-              - conditions:
-                  - condition: state
-                    entity_id: !input peak_active
-                    state: 'on'
-                sequence: !input critical_anchor_start_action
-              - conditions:
-                  - condition: state
-                    entity_id: !input peak_active
-                    state: 'off'
-                sequence: !input regular_anchor_start_action
+        - condition: state
+          entity_id: !input peak_active
+          state: 'on'
+        sequence: !input critical_peak_end_action
       - conditions:
-          - condition: trigger
-            id: anchor_end_trigger
-        sequence:
-          - choose:
-              - conditions:
-                  - condition: state
-                    entity_id: !input peak_active
-                    state: 'on'
-                sequence: !input critical_anchor_end_action
-              - conditions:
-                  - condition: state
-                    entity_id: !input peak_active
-                    state: 'off'
-                sequence: !input regular_anchor_end_action
+        - condition: state
+          entity_id: !input peak_active
+          state: 'off'
+        sequence: !input regular_peak_end_action
+  - conditions:
+    - condition: trigger
+      id: anchor_start_trigger
+    sequence:
+    - choose:
+      - conditions:
+        - condition: state
+          entity_id: !input peak_active
+          state: 'on'
+        sequence: !input critical_anchor_start_action
+      - conditions:
+        - condition: state
+          entity_id: !input peak_active
+          state: 'off'
+        sequence: !input regular_anchor_start_action
+  - conditions:
+    - condition: trigger
+      id: anchor_end_trigger
+    sequence:
+    - choose:
+      - conditions:
+        - condition: state
+          entity_id: !input peak_active
+          state: 'on'
+        sequence: !input critical_anchor_end_action
+      - conditions:
+        - condition: state
+          entity_id: !input peak_active
+          state: 'off'
+        sequence: !input regular_anchor_end_action
