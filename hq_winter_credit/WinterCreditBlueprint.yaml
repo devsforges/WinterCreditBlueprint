@@ -1,6 +1,6 @@
 blueprint:
   name: Hydro-Québec Crédits Hivernaux
-  description: 'Gestion des événements de crédit hivernal Hydro-Québec. '
+  description: 'Gestion des événements de crédit hivernal Hydro-Québec.'
   domain: automation
   input:
     peak_active:
@@ -35,7 +35,7 @@ blueprint:
       selector:
         entity:
           domain:
-            - binary_sensor
+          - binary_sensor
           multiple: false
     peak_today_PM:
       name: Pointe Soir Aujourd'hui
@@ -53,51 +53,38 @@ blueprint:
           domain:
           - binary_sensor
           multiple: false
-    pre_heat_start_action:
-      name: Action de préchauffage
-      default: []
+    next_anchor_start:
+      name: Début de l'ancrage
+      default: sensor.hydropeak_cpc_d_anchor_start
       selector:
-        action: {}
-    critical_peak_start_action:
-      name: Action début pointe critique
-      default: []
+        entity:
+          domain:
+          - sensor
+          multiple: false
+    next_anchor_end:
+      name: Fin de l'ancrage
+      default: sensor.hydropeak_cpc_d_anchor_end
       selector:
-        action: {}
-    critical_peak_end_action:
-      name: Action fin pointe critique
-      default: []
+        entity:
+          domain:
+          - sensor
+          multiple: false
+    next_event_start:
+      name: Début de l'événement
+      default: sensor.hydropeak_cpc_d_event_start
       selector:
-        action: {}
-    regular_peak_start_action:
-      name: (Optionnel) Action début pointe régulière
-      default: []
+        entity:
+          domain:
+          - sensor
+          multiple: false
+    next_event_end:
+      name: Fin de l'événement
+      default: sensor.hydropeak_cpc_d_event_end
       selector:
-        action: {}
-    regular_peak_end_action:
-      name: (Optionnel) Action fin pointe régulière
-      default: []
-      selector:
-        action: {}
-    critical_anchor_start_action:
-      name: (Optionnel) Action début période ancrage critique
-      default: []
-      selector:
-        action: {}
-    critical_anchor_end_action:
-      name: (Optionnel) Action fin période ancrage critique
-      default: []
-      selector:
-        action: {}
-    regular_anchor_start_action:
-      name: (Optionnel) Action début période ancrage régulière
-      default: []
-      selector:
-        action: {}
-    regular_anchor_end_action:
-      name: (Optionnel) Action fin période ancrage régulière
-      default: []
-      selector:
-        action: {}
+        entity:
+          domain:
+          - sensor
+          multiple: false
   source_url: https://raw.githubusercontent.com/devsforges/WinterCreditBlueprint/main/hq_winter_credit/WinterCreditBlueprint.yaml
 mode: parallel
 trigger:
@@ -141,6 +128,19 @@ trigger:
   from: 'on'
   to: 'off'
   id: anchor_end_trigger
+- platform: state
+  entity_id: !input next_anchor_start
+  id: next_anchor_start_trigger
+- platform: state
+  entity_id: !input next_anchor_end
+  id: next_anchor_end_trigger
+- platform: state
+  entity_id: !input next_event_start
+  id: next_event_start_trigger
+- platform: state
+  entity_id: !input next_event_end
+  id: next_event_end_trigger
+
 action:
 - choose:
   - conditions:
@@ -213,3 +213,19 @@ action:
           entity_id: !input peak_active
           state: 'off'
         sequence: !input regular_anchor_end_action
+  - conditions:
+    - condition: trigger
+      id: next_anchor_start_trigger
+    sequence: []
+  - conditions:
+    - condition: trigger
+      id: next_anchor_end_trigger
+    sequence: []
+  - conditions:
+    - condition: trigger
+      id: next_event_start_trigger
+    sequence: []
+  - conditions:
+    - condition: trigger
+      id: next_event_end_trigger
+    sequence: []
