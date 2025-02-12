@@ -1,153 +1,239 @@
 blueprint:
-  name: Hydro-Québec Crédits Hivernaux
-  description: 'Gestion des événements de crédit hivernal Hydro-Québec.'
+  name: Hydro-Québec Winter Credits
+  description: '# Gestion des événements de crédit hivernal d''Hydro-Québec.'
   domain: automation
   input:
-    peak_active:
-      name: Pointe en cours (critique)
-      description: Indicateur de pointe critique active
-      default: binary_sensor.hydropeak_cpc_d_peak_active
-      selector:
-        entity:
-          domain:
-          - binary_sensor
-          multiple: false
-    preheat_active:
-      name: Pré-chauffage en cours
-      description: Indicateur de préchauffage actif
-      default: binary_sensor.hydropeak_cpc_d_preheat_active
-      selector:
-        entity:
-          domain:
-          - binary_sensor
-          multiple: false
-    peak_today_AM:
-      name: Pointe Matin Aujourd'hui
-      default: binary_sensor.hydropeak_cpc_d_peak_today_am
-      selector:
-        entity:
-          domain:
-          - binary_sensor
-          multiple: false
-    peak_tomorrow_AM:
-      name: Pointe Matin Demain
-      default: binary_sensor.hydropeak_cpc_d_peak_tomorrow_am
-      selector:
-        entity:
-          domain:
-          - binary_sensor
-          multiple: false
-    peak_today_PM:
-      name: Pointe Soir Aujourd'hui
-      default: binary_sensor.hydropeak_cpc_d_peak_today_pm
-      selector:
-        entity:
-          domain:
-          - binary_sensor
-          multiple: false
-    peak_tomorrow_PM:
-      name: Pointe Soir Demain
-      default: binary_sensor.hydropeak_cpc_d_peak_tomorrow_pm
-      selector:
-        entity:
-          domain:
-          - binary_sensor
-          multiple: false
-    anchor_start:
-      name: Début de l'ancrage
-      default: sensor.hydropeak_cpc_d_anchor_start
-      selector:
-        entity:
-          domain:
-          - sensor
-          multiple: false
-    anchor_end:
-      name: Fin de l'ancrage
-      default: sensor.hydropeak_cpc_d_anchor_end
-      selector:
-        entity:
-          domain:
-          - sensor
-          multiple: false
-    event_start:
-      name: Début de l'événement
-      default: sensor.hydropeak_cpc_d_event_start
-      selector:
-        entity:
-          domain:
-          - sensor
-          multiple: false
-    event_end:
-      name: Fin de l'événement
-      default: sensor.hydropeak_cpc_d_event_end
-      selector:
-        entity:
-          domain:
-          - sensor
-          multiple: false
-    preheat_start:
-      name: Début du préchauffage
+    pre_heat:
+      name: Début pré-chauffage
+      description: Moment avant une pointe critique où nous voulons augmenter le chauffage de la résidence en vu de la pointe. Cette période se termine lorsque la pointe critique commence.
       default: sensor.hydropeak_cpc_d_preheat_start
       selector:
         entity:
-          domain:
-          - sensor
+          integration: Hydro-Peak
+          device_class: timestamp
+          domain: sensor
           multiple: false
-  source_url: https://raw.githubusercontent.com/devsforges/WinterCreditBlueprint/main/hq_winter_credit/WinterCreditBlueprint.yaml
+    peak_start:
+      name: Début pointe
+      description: Début de la période de pointe (sensor.hydropeak_cpc_d_event_start)
+      default: sensor.hydropeak_cpc_d_event_start
+      selector:
+        entity:
+          integration: Hydro-Peak
+          device_class: timestamp
+          domain: sensor
+          multiple: false
+    peak_end:
+      name: Fin pointe
+      description: Fin de la période de pointe (sensor.hydropeak_cpc_d_event_end)
+      default: sensor.hydropeak_cpc_d_event_end
+      selector:
+        entity:
+          integration: Hydro-Peak
+          device_class: timestamp
+          domain: sensor
+          multiple: false
+    anchor_start:
+      name: Début ancrage
+      description: Début de la période d'ancrage (sensor.hydropeak_cpc_d_anchor_start)
+      default: sensor.hydropeak_cpc_d_anchor_start
+      selector:
+        entity:
+          integration: Hydro-Peak
+          device_class: timestamp
+          domain: sensor
+          multiple: false
+    anchor_end:
+      name: Fin ancrage
+      description: Fin de la période d'ancrage (sensor.hydropeak_cpc_d_anchor_end)
+      default: sensor.hydropeak_cpc_d_anchor_end
+      selector:
+        entity:
+          integration: Hydro-Peak
+          device_class: timestamp
+          domain: sensor
+          multiple: false
+    critical_am:
+      name: Indicateur Critique (AM)
+      description: Indicateur de pointe critique pour la matinée
+      default: binary_sensor.hydropeak_cpc_d_peak_today_am
+      selector:
+        entity:
+          integration: Hydro-Peak
+          domain: binary_sensor
+          multiple: false
+    critical_pm:
+      name: Indicateur Critique (PM)
+      description: Indicateur de pointe critique pour l'après-midi
+      default: binary_sensor.hydropeak_cpc_d_peak_today_am
+      selector:
+        entity:
+          integration: Hydro-Peak
+          domain: binary_sensor
+          multiple: false
+    pre_heat_start_action:
+      name: Action de pré-chauffage
+      description: Actions à effectuer avant la période de pointe critique pour
+        pré-chauffer votre résidence.
+      default: []
+      selector:
+        action: {}
+    critical_peak_start_action:
+      name: Action début pointe critique
+      description: Actions à effectuer au début de la période de pointe critique pour
+        réduire votre consommation électrique.
+      default: []
+      selector:
+        action: {}
+    critical_peak_end_action:
+      name: Action fin pointe critique
+      description: Actions à effectuer à la fin de la période de pointe critique pour
+        rétablir votre consommation normale.
+      default: []
+      selector:
+        action: {}
+    critical_anchor_start_action:
+      name: (Optionnel) Action début période ancrage critique
+      description: Actions à effectuer au début d'une période d'ancrage précédent
+        une pointe critique
+      default: []
+      selector:
+        action: {}
+    critical_anchor_end_action:
+      name: (Optionnel) Action fin période ancrage critique
+      description: Actions à effectuer à la fin d'une période d'ancrage précédent
+        une pointe critique
+      default: []
+      selector:
+        action: {}
+    regular_peak_start_action:
+      name: (Optionnel) Action début pointe régulière
+      description: Actions à effectuera au début d'une période de pointe non-critique
+      default: []
+      selector:
+        action: {}
+    regular_peak_end_action:
+      name: (Optionnel) Action fin pointe régulière
+      description: Actions à effectuer à la fin d'une période de pointe non-critique
+      default: []
+      selector:
+        action: {}
+    regular_anchor_start_action:
+      name: (Optionnel) Action début période ancrage réguliere
+      description: Actions à effectuer au début d'une période d'ancrage précédent
+        une pointe non-critique
+      default: []
+      selector:
+        action: {}
+    regular_anchor_end_action:
+      name: (Optionnel) Action fin période ancrage réguliere
+      description: Actions à effectuer à la fin d'une période d'ancrage précédent
+        une pointe non-critique
+      default: []
+      selector:
+        action: {}
+  source_url: https://raw.githubusercontent.com/devsforges/ha_blueprints/blob/main/hq_winter_credit/WinterCreditBlueprint.yaml
 mode: parallel
 trigger:
-- platform: state
-  entity_id: !input preheat_active
-  from: 'off'
-  to: 'on'
-  id: preheat_trigger
-- platform: state
-  entity_id: !input peak_active
-  from: 'off'
-  to: 'on'
+- platform: time
+  at: !input pre_heat
+  id: pre_heat_trigger
+- platform: time
+  at: !input peak_start
   id: peak_start_trigger
-- platform: state
-  entity_id: !input peak_active
-  from: 'on'
-  to: 'off'
+- platform: time
+  at: !input peak_end
   id: peak_end_trigger
-- platform: state
-  entity_id: !input peak_today_AM
-  from: 'off'
-  to: 'on'
+- platform: time
+  at: !input anchor_start
   id: anchor_start_trigger
-- platform: state
-  entity_id: !input peak_today_PM
-  from: 'off'
-  to: 'on'
-  id: anchor_start_trigger
-- platform: state
-  entity_id: !input peak_tomorrow_AM
-  from: 'off'
-  to: 'on'
-  id: anchor_start_trigger
-- platform: state
-  entity_id: !input peak_tomorrow_PM
-  from: 'off'
-  to: 'on'
-  id: anchor_start_trigger
-- platform: state
-  entity_id: !input preheat_active
-  from: 'on'
-  to: 'off'
+- platform: time
+  at: !input anchor_end
   id: anchor_end_trigger
-- platform: state
-  entity_id: !input anchor_start
-  id: anchor_start_trigger
-- platform: state
-  entity_id: !input anchor_end
-  id: anchor_end_trigger
-- platform: state
-  entity_id: !input event_start
-  id: event_start_trigger
-- platform: state
-  entity_id: !input event_end
-  id: event_end_trigger
-- platform: state
-  entity_id: !input preheat_start
-  id: preheat_start_trigger
+action:
+- choose:
+  - conditions:
+    - conditions:
+      - condition: trigger
+        id: pre_heat_trigger
+      sequence:
+        - choose:
+            - conditions:
+                - condition: state
+                  entity_id: !input critical_am
+                  state: 'on'
+              sequence: !input pre_heat_start_action
+            - conditions:
+                - condition: state
+                  entity_id: !input critical_pm
+                  state: 'on'
+              sequence: !input pre_heat_start_action
+    - conditions:
+      - condition: trigger
+        id: peak_start_trigger
+      sequence:
+        - choose:
+            - conditions:
+                - condition: state
+                  entity_id: !input critical_am
+                  state: 'on'
+              sequence: !input critical_peak_start_action
+            - conditions:
+                - condition: state
+                  entity_id: !input critical_pm
+                  state: 'on'
+              sequence: !input critical_peak_start_action
+        - choose:
+            - conditions:
+                - condition: state
+                  entity_id: !input critical_am
+                  state: 'off'
+                - condition: state
+                  entity_id: !input critical_pm
+                  state: 'off'
+              sequence: !input regular_peak_start_action
+  - conditions:
+    - condition: trigger
+      id: peak_end_trigger
+    sequence:
+    - choose:
+      - conditions:
+        - condition: state
+          entity_id: !input critical
+          state: 'on'
+        sequence: !input critical_peak_end_action
+      - conditions:
+        - condition: state
+          entity_id: !input critical
+          state: 'off'
+        sequence: !input regular_peak_end_action
+  - conditions:
+    - condition: trigger
+      id: anchor_start_trigger
+    sequence:
+    - choose:
+      - conditions:
+        - condition: state
+          entity_id: !input critical
+          state: 'on'
+        sequence: !input critical_anchor_start_action
+      - conditions:
+        - condition: state
+          entity_id: !input critical
+          state: 'off'
+        sequence: !input regular_anchor_start_action
+  - conditions:
+    - condition: trigger
+      id: anchor_end_trigger
+    sequence:
+    - choose:
+      - conditions:
+        - condition: state
+          entity_id: !input critical
+          state: 'on'
+        sequence: !input critical_anchor_end_action
+      - conditions:
+        - condition: state
+          entity_id: !input critical
+          state: 'off'
+        sequence: !input regular_anchor_end_action
